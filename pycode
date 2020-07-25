@@ -1,0 +1,85 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+import time
+import re
+import os
+print('Hello')
+a=int(input())
+def num(str):
+    x=str.split('(')
+    x1=x[1].split(')')
+    nums = re.findall(r'\d*\.\d+|\d+', x1[0])
+    nums = [int(i) for i in nums]
+    return(nums[0])
+x=0
+homeDir = os.path.expanduser('~')
+st=f'{homeDir}\Desktop\pars.txt'
+with open(f'{st}', "w") as file:
+    browser=webdriver.Chrome()
+    browser.get('https://youla.ru')
+    browser.maximize_window()                    
+    time.sleep(2)
+    print('Авторизируйтесь в юле чтобы начать mamont hunting')
+    s=str(input('Введите ссылку для парсинга,должна начинаться с https'))
+    browser.get(s)
+    p=int(input('Введите кол-во обьявлений которые хотите прочекать в общем'))
+    for i in range(1,p):
+        print(f'{i/p*100}% сделано')
+        try:
+            browser.find_element_by_xpath(F'//*[@id="app"]/div[1]/div[3]/div/div/main/section/div/ul/li[{i}]').click()#Зашли на обьявление
+        except Exception:
+            continue           
+        tabs=browser.window_handles
+        browser.switch_to.window(tabs[1])#СВИЧНУЛИСЬ НА НЕГО   
+        url = browser.current_url#текущая ссылка на которой мы находимся
+        if url[8]!='y':
+            browser.close()
+            browser.switch_to_window(browser.window_handles[0])
+            continue
+        else:
+            pass 
+        time.sleep(2)                                    
+        try:
+            text1=browser.find_element_by_xpath('//*[@id="app"]/div[1]/div[4]/main/div/div[2]/div[2]/div/section[1]/div/div[2]/div/div/div[1]/div[2]/div/figure/div/p/a').text
+            print(text1)
+        except Exception:
+            browser.close()
+            browser.switch_to_window(browser.window_handles[0])
+            continue           
+        try:
+            print(num(text1))
+        except Exception:
+            browser.close()
+            browser.switch_to_window(browser.window_handles[0])
+            continue
+        if num(text1)<15:
+            try:    
+                browser.find_element_by_xpath('//*[@id="app"]/div[1]/div[4]/main/div/div[2]/div[2]/div/section[1]/div/div[2]/div/div/div[1]/div[1]/div/button[1]/span').click()
+            except Exception:
+                browser.close()
+                browser.switch_to_window(browser.window_handles[0])
+                continue       
+            time.sleep(1)
+            try:
+                selfnumber=browser.find_element_by_xpath('//*[@id="app"]/div[2]/div[19]/div/div/div/main/div/div/div/div[2]/div/div/a').text
+            except Exception:
+                browser.close()
+                browser.switch_to_window(browser.window_handles[0])
+                continue
+            try:
+                file.write(selfnumber + ' ' + url + '\n')
+                print(f'+1 записанный')
+            except Exception:              
+                browser.close()
+                browser.switch_to_window(browser.window_handles[0])
+                continue
+             
+        browser.close()
+        browser.switch_to_window(browser.window_handles[0])
+        print(i)
+print('Чекай файл pars на рабочем столе')
+   
